@@ -1,0 +1,109 @@
+use std::io::{self, Write};
+
+struct Task {
+    id: u32,
+    description: String,
+    completed: bool,
+}
+
+struct TodoList {
+    tasks: Vec<Task>,
+    next_id: u32,
+}
+
+impl TodoList {
+    fn new() -> Self {
+        Self {
+            tasks: Vec::new(),
+            next_id: 1,
+        }
+    }
+
+    fn add_task(&mut self, desc: String) {
+        let task = Task {
+            id: self.next_id,
+            description: desc,
+            completed: false,
+        };
+        self.tasks.push(task);
+        self.next_id += 1;
+    }
+
+    fn list_tasks(&self) {
+        if self.tasks.is_empty() {
+            println!("No tasks found.");
+            return;
+        }
+        for task in &self.tasks {
+            let status = if task.completed { "[X]" } else { "[ ]" };
+            println!("{} {}: {}", status, task.id, task.description);
+        }
+    }
+
+    fn complete_task(&mut self, id: u32) -> bool {
+        if let Some(task) = self.tasks.iter_mut().find(|t| t.id == id) {
+            task.completed = true;
+            return true;
+        }
+        false
+    }
+
+    fn remove_task(&mut self, id: u32) -> bool {
+        let initial_len = self.tasks.len();
+        self.tasks.retain(|t| t.id != id);
+        self.tasks.len() < initial_len
+    }
+}
+
+fn main() {
+    let mut todo = TodoList::new();
+    
+    loop {
+        println!("\n--- Task Manager ---");
+        println!("1. Add Task");
+        println!("2. List Tasks");
+        println!("3. Complete Task");
+        println!("4. Remove Task");
+        println!("5. Exit");
+        print!("Choose an option: ");
+        io::stdout().flush().unwrap();
+
+        let mut choice = String::new();
+        io::stdin().read_line(&mut choice).unwrap();
+
+        match choice.trim() {
+            "1" => {
+                print!("Enter task: ");
+                io::stdout().flush().unwrap();
+                let mut desc = String::new();
+                io::stdin().read_line(&mut desc).unwrap();
+                todo.add_task(desc.trim().to_string());
+            }
+            "2" => todo.list_tasks(),
+            "3" => {
+                print!("Enter task ID: ");
+                io::stdout().flush().unwrap();
+                let mut id_str = String::new();
+                io::stdin().read_line(&mut id_str).unwrap();
+                if let Ok(id) = id_str.trim().parse::<u32>() {
+                    if !todo.complete_task(id) {
+                        println!("Task not found.");
+                    }
+                }
+            }
+            "4" => {
+                print!("Enter task ID to remove: ");
+                io::stdout().flush().unwrap();
+                let mut id_str = String::new();
+                io::stdin().read_line(&mut id_str).unwrap();
+                if let Ok(id) = id_str.trim().parse::<u32>() {
+                    if !todo.remove_task(id) {
+                        println!("Task not found.");
+                    }
+                }
+            }
+            "5" => break,
+            _ => println!("Invalid option."),
+        }
+    }
+}
