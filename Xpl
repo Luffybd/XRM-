@@ -1,0 +1,88 @@
+use std::collections::HashMap;
+use std::hash::Hash;
+use std::fmt::Debug;
+
+#[derive(Debug, Clone)]
+struct Node<T> {
+    id: usize,
+    value: T,
+    neighbors: Vec<usize>,
+}
+
+struct Graph<T> {
+    nodes: HashMap<usize, Node<T>>,
+}
+
+impl<T> Graph<T> {
+    fn new() -> Self {
+        Graph {
+            nodes: HashMap::new(),
+        }
+    }
+
+    fn add_node(&mut self, id: usize, value: T) {
+        self.nodes.insert(
+            id,
+            Node {
+                id,
+                value,
+                neighbors: Vec::new(),
+            },
+        );
+    }
+
+    fn add_edge(&mut self, from: usize, to: usize) {
+        if let Some(node) = self.nodes.get_mut(&from) {
+            node.neighbors.push(to);
+        }
+    }
+
+    fn get_node(&self, id: usize) -> Option<&Node<T>> {
+        self.nodes.get(&id)
+    }
+
+    fn bfs(&self, start_id: usize) -> Vec<usize> {
+        let mut visited = Vec::new();
+        let mut queue = std::collections::VecDeque::new();
+        let mut seen = std::collections::HashSet::new();
+
+        queue.push_back(start_id);
+        seen.insert(start_id);
+
+        while let Some(current_id) = queue.pop_front() {
+            visited.push(current_id);
+
+            if let Some(node) = self.get_node(current_id) {
+                for neighbor_id in &node.neighbors {
+                    if !seen.contains(neighbor_id) {
+                        seen.insert(*neighbor_id);
+                        queue.push_back(*neighbor_id);
+                    }
+                }
+            }
+        }
+        visited
+    }
+}
+
+fn main() {
+    let mut graph = Graph::new();
+
+    for i in 0..100 {
+        graph.add_node(i, format!("Node-{}", i));
+    }
+
+    for i in 0..90 {
+        graph.add_edge(i, i + 1);
+        if i % 5 == 0 {
+            graph.add_edge(i, i + 10);
+        }
+    }
+
+    let traversal = graph.bfs(0);
+    println!("BFS Traversal Order: {:?}", traversal);
+
+    if let Some(node) = graph.get_node(5) {
+        println!("Node 5 neighbors: {:?}", node.neighbors);
+    }
+}
