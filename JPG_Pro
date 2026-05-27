@@ -1,3 +1,4 @@
 console.log("Hello, World!"); // Displays text in the browser's developer console
 let name = "Alex"; // A string variable
 const pi = 3.14;   // A constant number
+// A cole
