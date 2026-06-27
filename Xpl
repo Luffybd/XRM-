@@ -72,7 +72,7 @@ fn main() {
         graph.add_node(i, format!("Node-{}", i));
     }
 
-    for i in 0..90 {
+    for i in 0..70 {
         graph.add_edge(i, i + 1);
         if i % 5 == 0 {
             graph.add_edge(i, i + 10);
