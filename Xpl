@@ -86,3 +86,5 @@ fn main() {
         println!("Node 5 neighbors: {:?}", node.neighbors);
     }
 }
+
+oila
